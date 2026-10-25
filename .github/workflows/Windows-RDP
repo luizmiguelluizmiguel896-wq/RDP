@@ -1,7 +1,8 @@
 name: Windows-RDP
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [ "main" ]
 
 jobs:
   build:
