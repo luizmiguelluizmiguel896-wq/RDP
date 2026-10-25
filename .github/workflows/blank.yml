@@ -1,19 +1,36 @@
-name: Windows-RDP
+name: Windows-RDP-StarDesk
 
-on: workflow_dispatch
+on:
+  push:
+    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: windows-latest
     steps:
-    - name: Baixando e Instalando o StarDesk
+    - name: Baixando e Instalando o StarDesk com Seguranca
       run: |
-        Invoke-WebRequest -Uri "https://stardesk.net" -OutFile "StarDeskSetup.exe"
-        Start-Process -FilePath "StarDeskSetup.exe" -ArgumentList "/S" -Wait
-    - name: Mantendo o PC Virtual Ativo
+        $url = "https://stardesk.net"
+        $output = "$env:TEMP\StarDeskSetup.exe"
+        
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        
+        Write-Output "Iniciando download do StarDesk..."
+        Invoke-WebRequest -Uri $url -OutFile $output -UserAgent "Mozilla/5.0"
+        
+        if (Test-Path $output) {
+            Write-Output "Instalando o StarDesk silenciosamente..."
+            Start-Process -FilePath $output -ArgumentList "/S" -Wait
+            Write-Output "Instalacao concluida com sucesso!"
+        } else {
+            Write-Error "Falha ao baixar o instalador."
+            exit 1
+        }
+    - name: Mantendo o PC Virtual Ativo (Maximo de 6 Horas)
       run: |
-        $Loop = $true
-        while($Loop) {
+        $loop = 0
+        while ($loop -lt 360) {
           Start-Sleep -Seconds 60
+          $loop++
         }
         
