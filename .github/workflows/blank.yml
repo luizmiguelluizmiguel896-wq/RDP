@@ -1,0 +1,19 @@
+name: Windows-RDP
+
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: Baixando e Instalando o StarDesk
+      run: |
+        Invoke-WebRequest -Uri "https://stardesk.net" -OutFile "StarDeskSetup.exe"
+        Start-Process -FilePath "StarDeskSetup.exe" -ArgumentList "/S" -Wait
+    - name: Mantendo o PC Virtual Ativo
+      run: |
+        $Loop = $true
+        while($Loop) {
+          Start-Sleep -Seconds 60
+        }
+        
