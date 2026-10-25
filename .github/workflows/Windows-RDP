@@ -1,4 +1,4 @@
-name: Windows-RDP
+name: Windows-RDP-MaxTime
 
 on:
   push:
@@ -8,13 +8,22 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-    - name: Baixando e Instalando o StarDesk
+    - name: Otimizando Windows para Jogos
       run: |
-        Invoke-WebRequest -Uri "https://stardesk.net" -OutFile "StarDeskSetup.exe"
+        Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
+        Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+        write-output "Sistema Otimizado!"
+    - name: Instalando o StarDesk
+      run: |
+        $url = "https://stardesk.net"
+        $output = "StarDeskSetup.exe"
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        Invoke-WebRequest -Uri $url -OutFile $output -UserAgent "Mozilla/5.0"
         Start-Process -FilePath "StarDeskSetup.exe" -ArgumentList "/S" -Wait
-    - name: Mantendo o PC Virtual Ativo
+    - name: Mantendo Ativo pelo Limite Maximo (6 Horas)
       run: |
-        $Loop = $true
-        while($Loop) {
+        $loop = 0
+        while ($loop -lt 360) {
           Start-Sleep -Seconds 60
+          $loop++
         }
